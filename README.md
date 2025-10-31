@@ -1,2 +1,4 @@
 # Crasher
-it woll Crash your PC!
+it will Crash your PC!
+If anthing brakes im not the bad guy here!
+Just for test!
