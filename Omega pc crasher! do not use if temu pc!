@@ -1,0 +1,45 @@
+@echo off
+title Kontrollierter CMD-Starter (3 Minuten, gesteuerte Rate)
+setlocal enabledelayedexpansion
+
+rem ---------------------------
+rem Einstellungen (vorsichtig anpassen!)
+rem SECONDS = Laufzeit in Sekunden
+rem RATE    = Fenster pro Batch (wie viele auf einmal geöffnet werden)
+rem DELAY_MS= Millisekunden Pause zwischen den Batches
+rem MAX_WINDOWS = absolute Obergrenze insgesamt
+rem ---------------------------
+set SECONDS=180
+set RATE=80000
+set DELAY_MS=0
+set MAX_WINDOWS=100000000000000000000000000000
+
+rem Startzeit in Sekunden seit Mitternacht
+for /f "tokens=1-4 delims=:.," %%a in ("%time%") do set /a START=%%a*3600+%%b*60+%%c
+
+set /a opened=0
+
+:loop
+rem Öffne RATE Fenster (minimiert, mit kurzem internen Inhalt)
+for /L %%i in (1,1,%RATE%) do (
+  if !opened! GEQ %MAX_WINDOWS% goto :done
+  start "" /min cmd /k "title CMD-!opened! & echo Schnellfenster !opened! gestartet & timeout /t 10 >nul"
+  set /a opened+=1
+)
+
+rem kurze Pause in Millisekunden (PowerShell wird für Millisekunden-Schlaf genutzt)
+powershell -NoProfile -Command "Start-Sleep -Milliseconds %DELAY_MS%"
+
+rem Prüfen, ob die Zeit abgelaufen ist
+for /f "tokens=1-4 delims=:.," %%a in ("%time%") do set /a NOW=%%a*3600+%%b*60+%%c
+set /a ELAPSED=NOW-START
+
+if %ELAPSED% LSS %SECONDS% goto loop
+
+:done
+echo =========================================
+echo Fertig! Laufzeit: %ELAPSED% Sekunden
+echo Geoeffnete Fenster: %opened%
+echo =========================================
+pause
+endlocal
