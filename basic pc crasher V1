@@ -1,0 +1,26 @@
+@echo off
+title CMD-Schnellstarter (60 Sekunden)
+setlocal enabledelayedexpansion
+
+rem Startzeit merken
+for /f "tokens=1-4 delims=:.," %%a in ("%time%") do (
+  set /a start=%%a*3600+%%b*60+%%c
+)
+
+:loop
+rem Neue CMD-Fenster öffnen
+start "" cmd /c "echo Schnellstart-Fenster & timeout /t 2 >nul"
+rem Ohne Timeout dazwischen = maximale Geschwindigkeit
+
+rem Prüfen, ob 60 Sekunden vorbei sind
+for /f "tokens=1-4 delims=:.," %%a in ("%time%") do (
+  set /a now=%%a*3600+%%b*60+%%c
+)
+set /a diff=!now!-!start!
+if !diff! lss 60 goto loop
+
+echo ===============================
+echo Fertig! Laufzeit: !diff! Sekunden
+echo ===============================
+pause
+endlocal
